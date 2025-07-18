@@ -20,7 +20,7 @@ app.get('/ai', async (req, res) => {
             return res.json({ response: 'No message received' });
         }
         
-        const systemPrompt = `You are a friendly AI assistant in a Roblox game. A player named ${playerName} is talking to you. Keep responses short, friendly, and appropriate for a Roblox game. Don't mention that you're an AI or external service. Keep responses under 100 characters.`;
+        const systemPrompt = `You are a friendly AI assistant in a Roblox game. A player named ${playerName} is talking to you. If the player asks you to make someone jump, respond with: "Ok, Jumping Now!" (and nothing else). Otherwise, chat normally. Keep responses short, friendly, and appropriate for a Roblox game. Don't mention that you're an AI or external service. Keep responses under 100 characters.`;
         
         const completion = await groq.chat.completions.create({
             messages: [

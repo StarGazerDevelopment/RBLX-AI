@@ -37,7 +37,7 @@ app.get('/ai', async (req, res) => {
             return res.json({ response: response });
         }
         
-        // First, check for "jump X times" patterns
+        // Check for "jump X times" patterns FIRST (before single jump)
         const jumpTimesMatch = lowerMsg.match(/jump\s+(\d+)\s+times?/i);
         if (jumpTimesMatch) {
             const jumpCount = parseInt(jumpTimesMatch[1]);
@@ -64,36 +64,39 @@ app.get('/ai', async (req, res) => {
             }
         }
         
-        // Patterns that indicate actual jump requests (single jump)
+        // Check for "jump jump jump" patterns (multiple jumps in one message)
+        const jumpMatches = lowerMsg.match(/jump/g);
+        if (jumpMatches && jumpMatches.length > 1) {
+            const jumpCount = jumpMatches.length;
+            if (jumpCount <= 10) { // Limit to reasonable number
+                const response = `Ok, Jumping ${jumpCount} Times`;
+                console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+                return res.json({ response: response });
+            }
+        }
+        
+        // Patterns that indicate actual jump requests (single jump only)
         const jumpRequestPatterns = [
             /^jump\s*$/i,                    // "jump" alone
-            /^jump\s+jump\s*$/i,             // "jump jump"
-            /^jump\s+jump\s+jump\s*$/i,      // "jump jump jump"
-            /jump\s+jump\s+jump\s+jump/i,    // "jump jump jump jump"
-            /jump\s+jump\s+jump\s+jump\s+jump/i, // "jump jump jump jump jump"
             /can\s+you\s+jump/i,             // "can you jump"
             /please\s+jump/i,                // "please jump"
             /make\s+(?:the\s+)?(?:noob\s+)?jump/i, // "make jump" or "make the noob jump"
             /(?:i\s+want\s+you\s+to\s+)?jump\s+(?:now|please)?/i, // "jump now" or "jump please"
         ];
         
-        // Check if it's a jump request
+        // Check if it's a single jump request
         let isJumpRequest = false;
-        let jumpCount = 1; // Default to 1 jump
         
         for (let pattern of jumpRequestPatterns) {
             if (pattern.test(lowerMsg)) {
                 isJumpRequest = true;
-                // Count how many times "jump" appears in the message
-                const jumpMatches = lowerMsg.match(/jump/g);
-                jumpCount = jumpMatches ? jumpMatches.length : 1;
                 break;
             }
         }
         
-        // If it's a jump request with multiple jumps, respond with the count
-        if (isJumpRequest && jumpCount > 1) {
-            const response = `Ok, Jumping ${jumpCount} Times`;
+        // If it's a single jump request, respond with single jump
+        if (isJumpRequest) {
+            const response = `Ok, Jumping Now!`;
             console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
             return res.json({ response: response });
         }

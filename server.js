@@ -20,14 +20,66 @@ app.get('/ai', async (req, res) => {
             return res.json({ response: 'No message received' });
         }
         
-        // Count how many times "jump" appears in the message
+        // Check if this is actually a jump request (not just mentioning the word "jump")
         const lowerMsg = message.toLowerCase();
-        const jumpMatches = lowerMsg.match(/jump/g);
-        const jumpCount = jumpMatches ? jumpMatches.length : 0;
         
-        // If there are multiple jumps in one message, respond with the count
-        if (jumpCount > 1) {
-            const response = `Ok, Jumping ${jumpCount} Times Now!`;
+        // First, check for "jump X times" patterns
+        const jumpTimesMatch = lowerMsg.match(/jump\s+(\d+)\s+times?/i);
+        if (jumpTimesMatch) {
+            const jumpCount = parseInt(jumpTimesMatch[1]);
+            if (jumpCount > 0 && jumpCount <= 10) { // Limit to reasonable number
+                const response = `Ok, Jumping ${jumpCount} Times`;
+                console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+                return res.json({ response: response });
+            }
+        }
+        
+        // Check for "jump three times", "jump five times", etc.
+        const numberWords = {
+            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+        };
+        
+        for (let word in numberWords) {
+            const pattern = new RegExp(`jump\\s+${word}\\s+times?`, 'i');
+            if (pattern.test(lowerMsg)) {
+                const jumpCount = numberWords[word];
+                const response = `Ok, Jumping ${jumpCount} Times`;
+                console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+                return res.json({ response: response });
+            }
+        }
+        
+        // Patterns that indicate actual jump requests (single jump)
+        const jumpRequestPatterns = [
+            /^jump\s*$/i,                    // "jump" alone
+            /^jump\s+jump\s*$/i,             // "jump jump"
+            /^jump\s+jump\s+jump\s*$/i,      // "jump jump jump"
+            /jump\s+jump\s+jump\s+jump/i,    // "jump jump jump jump"
+            /jump\s+jump\s+jump\s+jump\s+jump/i, // "jump jump jump jump jump"
+            /can\s+you\s+jump/i,             // "can you jump"
+            /please\s+jump/i,                // "please jump"
+            /make\s+(?:the\s+)?(?:noob\s+)?jump/i, // "make jump" or "make the noob jump"
+            /(?:i\s+want\s+you\s+to\s+)?jump\s+(?:now|please)?/i, // "jump now" or "jump please"
+        ];
+        
+        // Check if it's a jump request
+        let isJumpRequest = false;
+        let jumpCount = 1; // Default to 1 jump
+        
+        for (let pattern of jumpRequestPatterns) {
+            if (pattern.test(lowerMsg)) {
+                isJumpRequest = true;
+                // Count how many times "jump" appears in the message
+                const jumpMatches = lowerMsg.match(/jump/g);
+                jumpCount = jumpMatches ? jumpMatches.length : 1;
+                break;
+            }
+        }
+        
+        // If it's a jump request with multiple jumps, respond with the count
+        if (isJumpRequest && jumpCount > 1) {
+            const response = `Ok, Jumping ${jumpCount} Times`;
             console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
             return res.json({ response: response });
         }

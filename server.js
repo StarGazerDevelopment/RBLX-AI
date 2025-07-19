@@ -23,6 +23,20 @@ app.get('/ai', async (req, res) => {
         // Check if this is actually a jump request (not just mentioning the word "jump")
         const lowerMsg = message.toLowerCase();
         
+        // Check for follow commands
+        if (lowerMsg.includes('follow') && (lowerMsg.includes('me') || lowerMsg.includes('you'))) {
+            const response = `Okay, Following You Now!`;
+            console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+            return res.json({ response: response });
+        }
+        
+        // Check for stop following commands
+        if (lowerMsg.includes('stop') && lowerMsg.includes('follow')) {
+            const response = `Okay I Won't Follow You Anymore!`;
+            console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+            return res.json({ response: response });
+        }
+        
         // First, check for "jump X times" patterns
         const jumpTimesMatch = lowerMsg.match(/jump\s+(\d+)\s+times?/i);
         if (jumpTimesMatch) {
@@ -88,15 +102,19 @@ app.get('/ai', async (req, res) => {
 
 IMPORTANT INSTRUCTIONS:
 - If the player asks you to jump, make someone jump, or any variation of jumping, you MUST respond with exactly: "Ok, Jumping Now!"
+- If the player asks you to follow them, you MUST respond with exactly: "Okay, Following You Now!"
+- If the player asks you to stop following them, you MUST respond with exactly: "Okay I Won't Follow You Anymore!"
 - Do NOT say "hi" or greet the player repeatedly
 - Do NOT mention that you're an AI or external service
 - Keep responses short and friendly
-- If the player asks about jumping, ONLY say "Ok, Jumping Now!" and nothing else
+- Use ONLY the exact phrases above for these commands
 
 Examples:
 - Player: "jump" → You: "Ok, Jumping Now!"
 - Player: "can you jump?" → You: "Ok, Jumping Now!"
 - Player: "make the noob jump" → You: "Ok, Jumping Now!"
+- Player: "follow me" → You: "Okay, Following You Now!"
+- Player: "stop following me" → You: "Okay I Won't Follow You Anymore!"
 - Player: "hello" → You: "Hello! How can I help you today?"`;
         
         const completion = await groq.chat.completions.create({

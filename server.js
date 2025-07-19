@@ -23,16 +23,16 @@ app.get('/ai', async (req, res) => {
         // Check if this is actually a jump request (not just mentioning the word "jump")
         const lowerMsg = message.toLowerCase();
         
-        // Check for follow commands
-        if (lowerMsg.includes('follow') && (lowerMsg.includes('me') || lowerMsg.includes('you'))) {
-            const response = `Okay, Following You Now!`;
+        // Check for stop following commands FIRST (before follow commands)
+        if ((lowerMsg.includes('stop') || lowerMsg.includes('dont') || lowerMsg.includes("don't")) && lowerMsg.includes('follow')) {
+            const response = `Okay I Won't Follow You Anymore!`;
             console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
             return res.json({ response: response });
         }
         
-        // Check for stop following commands
-        if (lowerMsg.includes('stop') && lowerMsg.includes('follow')) {
-            const response = `Okay I Won't Follow You Anymore!`;
+        // Check for follow commands (but not stop following)
+        if (lowerMsg.includes('follow') && (lowerMsg.includes('me') || lowerMsg.includes('you')) && !lowerMsg.includes('stop') && !lowerMsg.includes('dont') && !lowerMsg.includes("don't")) {
+            const response = `Okay, Following You Now!`;
             console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
             return res.json({ response: response });
         }

@@ -20,19 +20,45 @@ app.get('/ai', async (req, res) => {
             return res.json({ response: 'No message received' });
         }
         
-        const systemPrompt = `You are a friendly AI assistant in a Roblox game. A player named ${playerName} is talking to you. If the player asks you to make someone jump, respond with: "Ok, Jumping Now!" (and nothing else). Otherwise, chat normally. Keep responses short, friendly, and appropriate for a Roblox game. Don't mention that you're an AI or external service. Keep responses under 100 characters.`;
+        // Count how many times "jump" appears in the message
+        const lowerMsg = message.toLowerCase();
+        const jumpMatches = lowerMsg.match(/jump/g);
+        const jumpCount = jumpMatches ? jumpMatches.length : 0;
+        
+        // If there are multiple jumps in one message, respond with the count
+        if (jumpCount > 1) {
+            const response = `Ok, Jumping ${jumpCount} Times Now!`;
+            console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${response}`);
+            return res.json({ response: response });
+        }
+        
+        const systemPrompt = `You are a friendly AI assistant in a Roblox game. A player named ${playerName} is talking to you. 
+
+IMPORTANT INSTRUCTIONS:
+- If the player asks you to jump, make someone jump, or any variation of jumping, you MUST respond with exactly: "Ok, Jumping Now!"
+- Do NOT say "hi" or greet the player repeatedly
+- Do NOT mention that you're an AI or external service
+- Keep responses short and friendly
+- If the player asks about jumping, ONLY say "Ok, Jumping Now!" and nothing else
+
+Examples:
+- Player: "jump" → You: "Ok, Jumping Now!"
+- Player: "can you jump?" → You: "Ok, Jumping Now!"
+- Player: "make the noob jump" → You: "Ok, Jumping Now!"
+- Player: "hello" → You: "Hello! How can I help you today?"`;
         
         const completion = await groq.chat.completions.create({
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: message }
             ],
-            model: "llama3-8b-8192", // You can change this to other Groq models
+            model: "llama3-8b-8192",
             max_tokens: 100,
             temperature: 0.7,
         });
         
         const aiResponse = completion.choices[0].message.content;
+        console.log(`Player: ${playerName}, Message: ${message}, AI Response: ${aiResponse}`);
         res.json({ response: aiResponse });
         
     } catch (error) {
@@ -49,4 +75,4 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check available at: http://localhost:${PORT}/health`);
-}); 
+});

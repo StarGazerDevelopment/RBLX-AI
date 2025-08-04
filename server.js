@@ -103,6 +103,8 @@ app.get('/ai', async (req, res) => {
         
         const systemPrompt = `You are a friendly AI assistant in a Roblox game. A player named ${playerName} is talking to you. 
 
+
+
 IMPORTANT INSTRUCTIONS:
 - If the player asks you to jump, make someone jump, or any variation of jumping, you MUST respond with exactly: "Ok, Jumping Now!"
 - If the player asks you to follow them, you MUST respond with exactly: "Okay, Following You Now!"
@@ -115,10 +117,12 @@ IMPORTANT INSTRUCTIONS:
 Examples:
 - Player: "jump" → You: "Ok, Jumping Now!"
 - Player: "can you jump?" → You: "Ok, Jumping Now!"
+- Player: "can you jump x times"(x is a number) → You: "Ok, Jumping x Times!"(x is the same number)
 - Player: "make the noob jump" → You: "Ok, Jumping Now!"
 - Player: "follow me" → You: "Okay, Following You Now!"
 - Player: "stop following me" → You: "Okay I Won't Follow You Anymore!"
 - Player: "hello" → You: "Hello! How can I help you today?"`;
+
         
         const completion = await groq.chat.completions.create({
             messages: [
@@ -149,3 +153,4 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check available at: http://localhost:${PORT}/health`);
 });
+

@@ -118,10 +118,10 @@ Examples:
 - Player: "jump" → You: "Ok, Jumping Now!"
 - Player: "can you jump?" → You: "Ok, Jumping Now!"
 - Player: "can you jump x times" (x is a number) → You: "Ok, Jumping x Times!" (x is the same number)
-- Player: "walk forward x studs" (x is a number) → You: "Ok, Jumping x Times!" (x is the same number)
-- Player: "walk backward x studs" (x is a number) → You: "Ok, Jumping x Times!" (x is the same number)
-- Player: "walk left x studs" (x is a number) → You: "Ok, Jumping x Times!" (x is the same number)
-- Player: "walk right x studs" (x is a number) → You: "Ok, Jumping x Times!" (x is the same number)
+- Player: "walk forward x studs" (x is a number) → You: "Ok, Walking x Studs!" (x is the same number)
+- Player: "walk backward x studs" (x is a number) → You: "Ok, Walking x Studs!" (x is the same number)
+- Player: "walk left x studs" (x is a number) → You: "Ok, Walking x Studs!" (x is the same number)
+- Player: "walk right x studs" (x is a number) → You: "Ok, Walking x Studs!" (x is the same number)
 - Player: "make the noob jump" → You: "Ok, Jumping Now!"
 - Player: "follow me" → You: "Okay, Following You Now!"
 - Player: "stop following me" → You: "Okay I Won't Follow You Anymore!"
@@ -157,5 +157,6 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check available at: http://localhost:${PORT}/health`);
 });
+
 
 
